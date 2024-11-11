@@ -9,21 +9,18 @@ import {
   Put,
   Query,
   Redirect,
-  Req,
 } from '@nestjs/common';
-import { Request } from 'express';
 import { CreateCatDto } from './catsDTO/create-cat-dto';
 import { UpdateCatDto } from './catsDTO/update-cat-dto';
-
-// import { CatsService } from './cats.service';
+import { CatsService } from './cats.service';
 
 @Controller('cats')
 export class CatsController {
-  // constructor(private readonly catsService: CatsService) {}
+  constructor(private readonly catsService: CatsService) {}
 
   @Get('getAll') //Decorador que indica que el método getHello() responderá a las peticiones GET
-  findAll(@Req() request: Request): string {
-    return 'This action returns all cats';
+  findAll(): CreateCatDto[] {
+    return this.catsService.findAll();
   }
 
   @Get('docs')
@@ -34,10 +31,9 @@ export class CatsController {
     }
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: any): string {
-    // console.log(id);
-    return `This action returns a #${id} cat`;
+  @Get(':name')
+  findOne(@Param('name') name: string) {
+    return this.catsService.searchByName(name);
   }
 
   @Post('create')
@@ -53,21 +49,21 @@ export class CatsController {
   }
 
   @Post('createCat')
-  async createCats(@Body() createCatDto: CreateCatDto): Promise<string> {
-    console.log(createCatDto);
-    return `This action adds a new cat with name  ${createCatDto.name} and age ${createCatDto.age} and breed ${createCatDto.breed}`;
+  async createCats(@Body() createCatDto: CreateCatDto) {
+    return this.catsService.create(createCatDto);
   }
 
-  @Put('updateCat/:id')
+  @Put('updateCat/:name')
   async updateCats(
-    @Param('id') id: number,
+    @Param('name') name: string,
     @Body() updateCatDto: UpdateCatDto,
-  ): Promise<string> {
-    return `This action updates a cat with name  ${updateCatDto.name} and age ${updateCatDto.age} and breed ${updateCatDto.breed}`;
+  ): Promise<CreateCatDto[]> {
+    // `This action updates a cat with name  ${updateCatDto.name} and age ${updateCatDto.age} and breed ${updateCatDto.breed} with id: ${id}`;
+    return this.catsService.updateCat(updateCatDto, name);
   }
 
-  @Delete('deleteCat/:id')
-  remove(@Param('id') id: number) {
-    return `This action remove a cat with id: ${id} `;
+  @Delete('deleteCat/:name')
+  remove(@Param('name') name: string) {
+    return this.catsService.deleteByName(name);
   }
 }
